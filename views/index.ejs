@@ -1,11 +1,320 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-  </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カタンオンライン対戦</title>
+    <!-- <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script> -->
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+    <div class="game" id="game" style="display: none;">
+        <div class="players">
+            <div class="p" id="player1" style="display: none;"><div class="a"><div class="aa"><div class="a_cnt" id="p1_a_cnt_0">0</div><div class="a_img a_img_0"></div></div><div class="aa"><div class="a_cnt" id="p1_a_cnt_1">0</div><div class="a_img a_img_1"></div></div><div class="aa"><div class="a_cnt" id="p1_a_cnt_2">0</div><div class="a_img a_img_2"></div></div><div class="aa"><div class="a_cnt" id="p1_a_cnt_3">0</div><div class="a_img a_img_3"></div></div><div class="aa"><div class="a_cnt" id="p1_a_cnt_4">0</div><div class="a_img a_img_4"></div></div></div></div>
+            <div class="p" id="player2" style="display: none;"><div class="a"><div class="aa"><div class="a_cnt" id="p2_a_cnt_0">0</div><div class="a_img a_img_0"></div></div><div class="aa"><div class="a_cnt" id="p2_a_cnt_1">0</div><div class="a_img a_img_1"></div></div><div class="aa"><div class="a_cnt" id="p2_a_cnt_2">0</div><div class="a_img a_img_2"></div></div><div class="aa"><div class="a_cnt" id="p2_a_cnt_3">0</div><div class="a_img a_img_3"></div></div><div class="aa"><div class="a_cnt" id="p2_a_cnt_4">0</div><div class="a_img a_img_4"></div></div></div></div>
+            <div class="p" id="player3" style="display: none;"><div class="a"><div class="aa"><div class="a_cnt" id="p3_a_cnt_0">0</div><div class="a_img a_img_0"></div></div><div class="aa"><div class="a_cnt" id="p3_a_cnt_1">0</div><div class="a_img a_img_1"></div></div><div class="aa"><div class="a_cnt" id="p3_a_cnt_2">0</div><div class="a_img a_img_2"></div></div><div class="aa"><div class="a_cnt" id="p3_a_cnt_3">0</div><div class="a_img a_img_3"></div></div><div class="aa"><div class="a_cnt" id="p3_a_cnt_4">0</div><div class="a_img a_img_4"></div></div></div></div>
+        </div>
+        <div class="me" id="player0" style="display: block;" onclick="if(board.player==board.my_turn)document.getElementById('select').style.display=(document.getElementById('select').style.display=='none'?'flex':'none')">
+            <div class="a">
+                <div class="aa"><div class="a_cnt" id="p0_a_cnt_0">0</div><div class="a_img a_img_0"></div></div>
+                <div class="aa"><div class="a_cnt" id="p0_a_cnt_1">0</div><div class="a_img a_img_1"></div></div>
+                <div class="aa"><div class="a_cnt" id="p0_a_cnt_2">0</div><div class="a_img a_img_2"></div></div>
+                <div class="aa"><div class="a_cnt" id="p0_a_cnt_3">0</div><div class="a_img a_img_3"></div></div>
+                <div class="aa"><div class="a_cnt" id="p0_a_cnt_4">0</div><div class="a_img a_img_4"></div></div>
+            </div>
+        </div>
+        <button class="change_button" onclick="document.getElementById('change').style.display=(document.getElementById('change').style.display=='none'?'flex':'none');">変える</button>
+        <div class="container">
+            <div class="hex-row" style="position: relative;">
+                <div class="hex most_left" id="0">
+                    <div class="top" id="00"></div><div class="middle" id="00a"></div><div class="bottom" id="00b"></div>
+    
+                    <div class="street s_right"></div>
+                    <div class="street s_left"></div>
+                    <div class="street s_top_right"></div>
+                    <div class="street s_top_left"></div>
+                    <div class="street s_bottom_right"></div>
+                    <div class="street s_bottom_left"></div>
+                    <div class="house h_bottom"></div>
+                    <div class="house h_bottom_right"></div>
+                    <div class="house h_bottom_left"></div>
+                    <div class="house h_top"></div>
+                    <div class="house h_top_right"></div>
+                    <div class="house h_top_left"></div>
+                </div>
+                <div class="hex" id="1">
+                    <div class="top" id="01"></div><div class="middle" id="01a"></div><div class="bottom" id="01b"></div>
+                    <div class="street s_right"></div>
+                    <div class="street s_top_right"></div>
+                    <div class="street s_top_left"></div>
+                    <div class="street s_bottom_right"></div>
+                    <div class="street s_bottom_left"></div>
+                    <div class="house h_bottom"></div>
+                    <div class="house h_bottom_right"></div>
+                    <div class="house h_top"></div>
+                    <div class="house h_top_right"></div>
+                </div>
+                <div class="hex" id="2">
+                    <div class="top" id="02"></div><div class="middle" id="02a"></div><div class="bottom" id="02b"></div>
+                    <div class="street s_right"></div>
+                    <div class="street s_top_right"></div>
+                    <div class="street s_top_left"></div>
+                    <div class="street s_bottom_right"></div>
+                    <div class="street s_bottom_left"></div>
+                    <div class="house h_bottom"></div>
+                    <div class="house h_bottom_right"></div>
+                    <div class="house h_top"></div>
+                    <div class="house h_top_right"></div>
+                </div>
+            </div>
+            <div class="hex-row" style="position: absolute; top: 18%;">
+                <div class="hex most_left" id="3">
+                    <div class="top" id="03"></div><div class="middle" id="03a"></div><div class="bottom" id="03b"></div>
+                    <div class="street s_right"></div>
+                    <div class="street s_left"></div>
+                    <div class="street s_top_left"></div>
+                    <div class="street s_bottom_right"></div>
+                    <div class="street s_bottom_left"></div>
+                    <div class="house h_bottom"></div>
+                    <div class="house h_bottom_right"></div>
+                    <div class="house h_bottom_left"></div>
+                    <div class="house h_top_left"></div>
+                </div>
+                <div class="hex" id="4">
+                    <div class="top" id="04"></div><div class="middle" id="04a"></div><div class="bottom" id="04b"></div>
+                    <div class="street s_right"></div>
+                    <div class="street s_bottom_right"></div>
+                    <div class="street s_bottom_left"></div>
+                    <div class="house h_bottom"></div>
+                    <div class="house h_bottom_right"></div>
+                </div>
+                <div class="hex" id="5">
+                    <div class="top" id="05"></div><div class="middle" id="05a"></div><div class="bottom" id="05b"></div>
+                    <div class="street s_right"></div>
+                    <div class="street s_bottom_right"></div>
+                    <div class="street s_bottom_left"></div>
+                    <div class="house h_bottom"></div>
+                    <div class="house h_bottom_right"></div>
+                </div>
+                <div class="hex" id="6">
+                    <div class="top" id="06"></div><div class="middle" id="06a"></div><div class="bottom" id="06b"></div>                <div class="street s_right"></div>
+                    <div class="street s_top_right"></div>
+                    <div class="street s_bottom_right"></div>
+                    <div class="street s_bottom_left"></div>
+                    <div class="house h_bottom"></div>
+                    <div class="house h_bottom_right"></div>
+                    <div class="house h_top_right"></div>
+                </div>
+            </div>
+            <div class="hex-row" style="position: absolute; top: 36%;">
+                <div class="hex most_left" id="7">
+                    <div class="top" id="07"></div><div class="middle" id="07a"></div><div class="bottom" id="07b"></div>                <div class="street s_right"></div>
+                    <div class="street s_left"></div>
+                    <div class="street s_bottom_right"></div>
+                    <div class="street s_bottom_left"></div>
+                    <div class="street s_top_left"></div>
+                    <div class="house h_bottom"></div>
+                    <div class="house h_bottom_right"></div>
+                    <div class="house h_bottom_left"></div>
+                    <div class="house h_top_left"></div>
+                </div>
+                <div class="hex" id="8">
+                    <div class="top" id="08"></div><div class="middle" id="08a"></div><div class="bottom" id="08b"></div>
+                    <div class="street s_right"></div>
+                    <div class="street s_left"></div>
+                    <div class="street s_bottom_right"></div>
+                    <div class="street s_bottom_left"></div>
+                    <div class="house h_bottom"></div>
+                    <div class="house h_bottom_right"></div>
+                </div>
+                <div class="hex" id="9">
+                    <div class="top" id="09"></div><div class="middle" id="09a"></div><div class="bottom" id="09b"></div>                <div class="street s_right"></div>
+                    <div class="street s_left"></div>
+                    <div class="street s_bottom_right"></div>
+                    <div class="street s_bottom_left"></div>
+                    <div class="house h_bottom"></div>
+                    <div class="house h_bottom_right"></div>
+                </div>
+                <div class="hex" id="10">
+                    <div class="top" id="010"></div><div class="middle" id="010a"></div><div class="bottom" id="010b"></div>                <div class="street s_right"></div>
+                    <div class="street s_left"></div>
+                    <div class="street s_bottom_right"></div>
+                    <div class="street s_bottom_left"></div>
+                    <div class="house h_bottom"></div>
+                    <div class="house h_bottom_right"></div>
+                </div>
+                <div class="hex" id="11">
+                    <div class="top" id="011"></div><div class="middle" id="011a"></div><div class="bottom" id="011b"></div>                <div class="street s_right"></div>
+                    <div class="street s_left"></div>
+                    <div class="street s_bottom_right"></div>
+                    <div class="street s_bottom_left"></div>
+                    <div class="street s_top_right"></div>
+                    <div class="house h_bottom"></div>
+                    <div class="house h_bottom_right"></div>
+                    <div class="house h_top_right"></div>
+                </div>
+            </div>
+            <div class="hex-row" style="position: absolute; top: 54%;">
+                <div class="hex most_left" id="12">
+                    <div class="top" id="012"></div><div class="middle" id="012a"></div><div class="bottom" id="012b"></div>                <div class="street s_right"></div>
+                    <div class="street s_left"></div>
+                    <div class="street s_bottom_right"></div>
+                    <div class="street s_bottom_left"></div>
+                    <div class="house h_bottom"></div>
+                    <div class="house h_bottom_right"></div>
+                    <div class="house h_bottom_left"></div>
+                </div>
+                <div class="hex" id="13">
+                    <div class="top" id="013"></div><div class="middle" id="013a"></div><div class="bottom" id="013b"></div>                <div class="street s_right"></div>
+                    <div class="street s_left"></div>
+                    <div class="street s_bottom_right"></div>
+                    <div class="house h_bottom"></div>
+                    <div class="house h_bottom_right"></div>
+                </div>
+                <div class="hex" id="14">
+                    <div class="top" id="014"></div><div class="middle" id="014a"></div><div class="bottom" id="014b"></div>
+                    <div class="street s_right"></div>
+                    <div class="street s_left"></div>
+                    <div class="street s_bottom_right"></div>
+                    <div class="house h_bottom"></div>
+                    <div class="house h_bottom_right"></div>
+                </div>
+                <div class="hex" id="15">
+                    <div class="top" id="015"></div><div class="middle" id="015a"></div><div class="bottom" id="015b"></div>                <div class="street s_right"></div>
+                    <div class="street s_left"></div>
+                    <div class="street s_bottom_right"></div>
+                    <div class="house h_bottom"></div>
+                    <div class="house h_bottom_right"></div>
+                </div>
+            </div>
+            <div class="hex-row" style="position: absolute; top: 72%;">
+                <div class="hex most_left" id="16">
+                    <div class="top" id="016"></div><div class="middle" id="016a"></div><div class="bottom" id="016b"></div>                <div class="street s_right"></div>
+                    <div class="street s_left"></div>
+                    <div class="street s_bottom_right"></div>
+                    <div class="street s_bottom_left"></div>
+                    <div class="house h_bottom"></div>
+                    <div class="house h_bottom_left"></div>
+                    <div class="house h_bottom_right"></div>
+                </div>
+                <div class="hex" id="17">
+                    <div class="top" id="017"></div><div class="middle" id="017a"></div><div class="bottom" id="017b"></div>                <div class="street s_left"></div>
+                    <div class="street s_bottom_right"></div>
+                    <div class="house h_bottom"></div>
+                    <div class="house h_bottom_right"></div>
+                </div>
+                <div class="hex" id="18">
+                    <div class="top" id="018"></div><div class="middle" id="018a"></div><div class="bottom" id="018b"></div>                <div class="street s_left"></div>
+                    <div class="street s_right"></div>
+                    <div class="street s_bottom_right"></div>                <div class="house h_bottom"></div>
+                    <div class="house h_bottom_right"></div>
+                </div>
+            </div>
+        </div>
+        <div class="back_hex"></div>
+        <div class="dices" id="dices" style="display: none;">
+            <div id="dice" data-side="1">
+                <div class="sides side-1">
+                    <span class="dot dot-1"></span>
+                </div>
+                <div class="sides side-2">
+                    <span class="dot dot-1"></span>
+                    <span class="dot dot-2"></span>
+                </div>
+                <div class="sides side-3">
+                    <span class="dot dot-1"></span>
+                    <span class="dot dot-2"></span>  
+                    <span class="dot dot-3"></span>
+                </div>
+                <div class="sides side-4">
+                    <span class="dot dot-1"></span>
+                    <span class="dot dot-2"></span>  
+                    <span class="dot dot-3"></span>
+                    <span class="dot dot-4"></span>
+                </div>
+                <div class="sides side-5">
+                    <span class="dot dot-1"></span>
+                    <span class="dot dot-2"></span>  
+                    <span class="dot dot-3"></span>
+                    <span class="dot dot-4"></span>
+                    <span class="dot dot-5"></span>
+                </div>
+                <div class="sides side-6">
+                    <span class="dot dot-1"></span>
+                    <span class="dot dot-2"></span>  
+                    <span class="dot dot-3"></span>
+                    <span class="dot dot-4"></span>
+                    <span class="dot dot-5"></span>
+                    <span class="dot dot-6"></span>
+                </div>
+            </div>
+            <div id="dice2" data-side="1">
+                <div class="sides side-1">
+                    <span class="dot dot-1"></span>
+                </div>
+                <div class="sides side-2">
+                    <span class="dot dot-1"></span>
+                    <span class="dot dot-2"></span>
+                </div>
+                <div class="sides side-3">
+                    <span class="dot dot-1"></span>
+                    <span class="dot dot-2"></span>  
+                    <span class="dot dot-3"></span>
+                </div>
+                <div class="sides side-4">
+                    <span class="dot dot-1"></span>
+                    <span class="dot dot-2"></span>  
+                    <span class="dot dot-3"></span>
+                    <span class="dot dot-4"></span>
+                </div>
+                <div class="sides side-5">
+                    <span class="dot dot-1"></span>
+                    <span class="dot dot-2"></span>  
+                    <span class="dot dot-3"></span>
+                    <span class="dot dot-4"></span>
+                    <span class="dot dot-5"></span>
+                </div>
+                <div class="sides side-6">
+                    <span class="dot dot-1"></span>
+                    <span class="dot dot-2"></span>  
+                    <span class="dot dot-3"></span>
+                    <span class="dot dot-4"></span>
+                    <span class="dot dot-5"></span>
+                    <span class="dot dot-6"></span>
+                </div>
+            </div>
+        </div>
+        <div class="select" id="select" style="display: none;">
+            <button class="ok" onclick="ok(1)">街道</button>
+            <button class="ok" onclick="ok(11)">開拓地</button>
+            <button class="ok" onclick="ok(111)">都市</button>
+            <button class="cancel" onclick="document.getElementById('select').style.display=(document.getElementById('select').style.display=='none'?'flex':'none')">Cancel</button>
+            <!-- <div id="dropbox" class="result">
+                <div class="card_img_0"></div><div id="card_0_cnt">0</div>
+                <div class="card_img_1"></div><div id="card_1_cnt">0</div>
+                <div class="card_img_2"></div><div id="card_2_cnt">0</div>
+                <div class="card_img_3"></div><div id="card_3_cnt">0</div>
+                <div class="card_img_4"></div><div id="card_4_cnt">0</div>
+                
+            </div> -->
+        </div>
+        <div class="select" id="change" style="display: none;">
+            <button onclick="sc(0);" id="select0">木</button>
+            <button onclick="sc(1);" id="select1">レンガ</button>
+            <button onclick="sc(2);" id="select2">羊</button>
+            <button onclick="sc(3);" id="select3">小麦</button>
+            <button onclick="sc(4);" id="select4">石</button>
+        </div>
+        <button class="pass" onclick="pass()">手番を渡す</button>
+    </div>
+    <div class="home" id="home" style="display: block;">
+        <button onclick="this.style.display='none';game_make();">対局開始</button>
+    </div>
+
+    
+    
+</body>
+<script src="socket.io/socket.io.js"></script>
+<script src="/javascripts/script.js"></script>
 </html>
