@@ -8,7 +8,9 @@ html {
 body {
   height: 100%;
   width: 100%;
-  background-image: url("/img/wood.webp");
+  position: relative;
+  background-color: black;
+  text-align: center;
 }
 .container {
   height: 70vmin;
@@ -182,8 +184,24 @@ body {
   margin: auto;
   height: 7vmin;
   width: 100%;
+  float: left;
   display: flex;
   justify-content: center;
+}
+.select_ {
+  height: 7vmin;
+  width: 30vw;
+  -moz-box-shadow: 2px 0px 20px 5px rgba(0, 0, 0, 0.8);
+  -webkit-box-shadow: 2px 0px 20px 5px rgba(0, 0, 0, 0.8);
+  -ms-box-shadow: 2px 0px 20px 5px rgba(0, 0, 0, 0.8);
+  box-shadow: 2px 0px 20px 5px rgba(0, 0, 0, 0.8);
+  margin-left: 3%;
+  margin-right: 3%;
+  border-radius: 10px;
+  box-sizing: border-box;
+  text-align: center;
+  background: rgb(255,208,135);
+  background: linear-gradient(90deg, rgba(255,208,135,1) 0%, rgba(255,128,0,1) 100%);
 }
 .p {
   height: 100%;
@@ -217,7 +235,7 @@ body {
   box-sizing: border-box;
 }
 .a {
-  width: 100%;
+  width: 30vw;
   height: 100%;
   display: flex;
   justify-content: center;
@@ -234,7 +252,7 @@ body {
 .a_cnt {
   color: white;
   -webkit-text-stroke: 1px #FFF;
-  text-stroke: 1px #FFF;
+  -webkit-text-stroke: 1px #FFF;
 }
 .a_img {
   height: 40%;
@@ -259,13 +277,21 @@ body {
   z-index: 200;
   height: 60%;
   width: 60%;
-  opacity: 0.8;
   background-color: brown;
   border-radius: 20px;
   animation:select_animation 0.3s linear 1;
-  float: left;
+  text-align: center;
+}
+.content {
+  height: 25%;
+  width: 100%;
+  text-align: center;
   display: flex;
   justify-content: center;
+  align-items: center;
+}
+.cancel {
+  background-color: gray;
 }
 @keyframes select_animation {
   0% {
@@ -299,15 +325,6 @@ body {
   width: 30%;
   background-color: green;
 }
-.change_button {
-  position: absolute;
-  bottom: 20px;right: 200px;
-  height: 5%;
-  width: 10%;
-}
-
-
-
 
 
 
@@ -519,18 +536,254 @@ transform: rotateX(-90deg) translateZ(3.5vmin);
 }
 
 
-.pass {
-  position: absolute;
-  bottom: 20px;right: 30px;
-  height: 5%;
-  width: 10%;
-}
 
 .home {
+  height: 100%;
+  width: 100%;
+  background: rgb(191,145,3);
+  background: linear-gradient(0deg, rgba(191,145,3,1) 0%, rgba(252,71,0,1) 100%);
+  transition: all 2.0s;
+  opacity: 1.0;
+}
 
+.home_img {
+  background-image: url("/img/yasi.PNG");
+  background-repeat: no-repeat;
+  background-position: left;
+  background-size: contain;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  
+}
+.home_sun {
+  position: absolute;
+  right: 50%;
+  bottom: 0;
+  margin: auto;
+  height: 40vmin;
+  width: 40vmin;
+  border-radius: 50%;
+  background-color: rgb(245, 104, 65);
+  box-shadow: -20px -10px 50px 5px rgba(0, 0, 0, .5) inset;
+}
+.home_box {
+  height: 100%;
+  width:50%;
+  position: absolute;
+  right: 0;
+  text-align: center;
+}
+.logo {
+  font-family: 'Abel';
+  color: orange;
+  -webkit-text-stroke: 0.1px black;
+  -webkit-text-stroke: 0.1px black;
+}
+h1 {
+  font-size: 150px;
+  margin-bottom: -10%;
+}
+h3 {
+  font-size: 50px;
+}
+.button {
+  background: #d925c7;
+  border: 0;
+  border-radius: 5px;
+  box-shadow: 0 6px 0 #13576e, 0 5px 15px -4px #000;
+  color: #fff;
+  cursor: pointer;
+  font-family: roboto;
+  font-size: 20px;
+  font-weight: 800;
+  height: 10%;
+  width: 30%;
+  padding: 5px;
+  text-transform: uppercase;
+  transition: box-shadow 0.2s ease-in-out, margin-top 0.2s ease-in-out,
+    opacity 0.2s ease-in-out;
+  width: 150px;
+}
+.button:hover,
+.button:focus {
+  opacity: 0.9;
+  outline: 0;
+}
+.button:active {
+  box-shadow: none;
+  margin-top: 6px;
+}
+.spinner {
+  width: 32px;
+  height: 32px;
+  margin: 10px auto;
+  border: 4px #ddd solid;
+  border-top: 4px #2e93e6 solid;
+  border-radius: 50%;
+  animation: sp-anime 1.0s infinite linear;
+}
+@keyframes sp-anime {
+  100% { 
+    transform: rotate(360deg); 
+  }
 }
 .game {
   height: 100%;
   width: 100%;
   position: relative;
+  background-image: url("/img/wood.webp");
+}
+.alert_box {
+  position: absolute;
+  height: 10%;
+  width: 30%;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  margin: auto;
+  z-index: 10000;
+}
+@keyframes alert_a {
+  from {
+    opacity: 0.0;
+  }
+  to {
+    opacity: 1.0;
+  }
+}
+@keyframes alert_b {
+  from {
+    opacity: 1.0;
+  }
+  to {
+    opacity: 0.0;
+  }
+}
+
+.ribbon9 {
+  display: inline-block;
+  position: relative;
+  height: 45px;
+  text-align: center;
+  box-sizing: border-box;
+}
+.ribbon9:before {/*左側のリボン端*/
+  content: '';
+  position: absolute;
+  width: 10px;
+  bottom: -10px;
+  left: -35px;
+  z-index: -2;
+  border: 20px solid #56adf3;
+  border-left-color: transparent;/*山形に切り抜き*/
+}
+
+.ribbon9:after {/*右側のリボン端*/
+  content: '';
+  position: absolute;
+  width: 10px;
+  bottom: -10px;
+  right: -35px;
+  z-index: -2;
+  border: 20px solid #56adf3;
+  border-right-color: transparent;/*山形に切り抜き*/
+}
+
+.ribbon9 h3 {
+  display: inline-block;
+  position: relative;
+  margin: 0;
+  padding: 0 20px;
+  line-height: 45px;
+  font-size: 18px;
+  color: #FFF;
+  background: #2196F3;/*真ん中の背景色*/
+}
+.ribbon9 h3:before {
+  position: absolute;
+  content: '';
+  top: 100%;
+  left: 0;
+  border: none;
+  border-bottom: solid 10px transparent;
+  border-right: solid 15px #397eb5;/*左の折り返し部分*/
+}
+.ribbon9 h3:after {
+  position: absolute;
+  content: '';
+  top: 100%;
+  right: 0;
+  border: none;
+  border-bottom: solid 10px transparent;
+  border-left: solid 15px #397eb5;/*右の折り返し部分*/
+}
+
+.buttons {
+  position: absolute;
+  height: 7%;
+  width: 20%;
+  bottom: 3%;
+  right: 5%;
+  display: flex;
+  justify-content: center;
+}
+.change_button{
+  height: 100%;
+  width: 47%;
+  margin-left: 6%;
+}
+.pass {
+  height: 100%;
+  width: 47%;
+}
+.change_message {
+  font-family: 'Abel';
+  color: orange;
+  -webkit-text-stroke: 0.1px black;
+  -webkit-text-stroke: 0.1px black;
+  height: 7%;
+  width: 100%;
+  font-size: 30px;
+}
+.change_content {
+  width: 100%;
+  height: 80%;
+  display: flex;
+  flex-wrap:wrap;
+  justify-content: center;
+  align-items: center;
+}
+.change_img {
+  box-sizing: border-box;
+  height: 40%;
+  width: 30%;
+  margin: 1%;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+.now_select {
+  height: 15%;
+  width: 10%;
+  position: absolute;
+  right: 14vmin;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+}
+.now_select_button {
+  height: 60%;
+  width: 100%;
+}
+.now_select_logo {
+  font-family: 'Abel';
+  color: orange;
+  -webkit-text-stroke: 0.1px black;
+  -webkit-text-stroke: 0.1px black;
+  height: 30%;
+  width: 100%;
+  font-size: 30px;
+  margin-bottom: 2%;
 }

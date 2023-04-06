@@ -6,12 +6,23 @@ socket.on("user_count",(info)=>{});
 function game_make() {
     socket.emit("game_make");
 }
+function cancel_game_make() {
+    socket.emit("cancel_game_make");
+}
 // マッチング完了。ゲーム開始
 socket.on("start_game",(info)=>{
-    document.getElementById("home").style.display="none";
-    document.getElementById("game").style.display="block";
-    start(info.player_count,info.my_turn,info.plate_numbers,info.plate_types);
+    document.getElementById("home").style.opacity="0.0";
+    setTimeout(() => {
+        document.getElementById("home").style.display="none";
+        document.getElementById("game").style.display="block";
+        start(info.player_count,info.my_turn,info.plate_numbers,info.plate_types);    
+    }, 2000);
+    
 });
+// 接続切れ勝ち
+socket.on("connection_win",()=>{
+    alert("勝ち2")
+})
 //はじめのやつで置く
 function put_first_emit(x,y,z) {
     socket.emit("put_first",{x:x,y:y,z:z});
@@ -27,6 +38,12 @@ socket.on("get_put",(info)=>{
     board.policy=info.policy;
     board.put(info.x,info.y,info.z,true);
 });
+//誰かがカードを変換した
+socket.on("get_change_select",(info)=>{
+    board.cards[info.c][info.a]-=4;
+    board.cards[info.c][info.b]+=1;
+    board.print_card_counts();
+})
 //誰かがターンを譲った
 socket.on("next_player",()=>{board.next_player()});
 //サイコロ打った
@@ -37,7 +54,7 @@ socket.on("get_dice",(info)=>{rollDice(info.x,info.y);});
 // 羊  * 4     3
 // 畑  * 4     4
 // 荒地 * 1    5
-const plate_types_back = ["green", "red", "white", "yellow", "gray", "black"];
+const plate_types_back = ["green", "orange", "white", "yellow", "gray", "black"];
 
 // 2 * 1
 // 3 * 2
@@ -371,6 +388,12 @@ class Board {
     }
     // はじめのほうのやつ
     put_first(x,y,z,f) {
+        if(!f&&((y==0&&this.policy>=10)||(y==1&&this.policy<=10)))return;
+        let ll = this.legal(this.policy);
+        let flag = false;
+        for(let i = 0; i < ll.length;++i)if(ll[i][0]==x&&ll[i][1]==z)flag=true;
+        if(!f&&!flag)return;
+        cancel_select(true);
         if(y==0){
             this.komas[x][y][z] = (this.player+1);
             if(get_other_s(x,z).length>0)this.komas[get_other_s(x,z)[0]][y][get_other_s(x,z)[1]] = (this.player+1);
@@ -395,29 +418,39 @@ class Board {
             } else if(this.koma_count(this.player_count-1)==4){
                 //反時計回り
                 this.player--;
+                if(this.player==this.my_turn)show_alert("Your Turn"),ok_first(11);
                 document.getElementById(get_player_id(this.player+1,this.my_turn,this.player_count)).style.border = "solid 0px red";
-                document.getElementById(get_player_id(this.player,this.my_turn,this.player_count)).style.border = "solid 3px red"; 
+                document.getElementById(get_player_id(this.player,this.my_turn,this.player_count)).style.border = "solid 3px red";
             }else{
                 //時計回り
                 this.player++;
+                if(this.player==this.my_turn)show_alert("Your Turn"),ok_first(11);
                 this.turn_paint();
             }
         } else {
             // まだ同じ人の盤です
+            if(this.player==this.my_turn){
+                show_alert("Your Turn");
+                if(this.koma_count(this.player)==2&&this.player==this.player_count-1){
+                    ok_first(11);
+                } else {
+                    ok_first(1);
+                }
+            }
         }
         if(!f)put_first_emit(x,y,z);
         this.print_komas();
     }
     // 置く x番目のプレートのyの場所にのやつをzにおく
     put(x,y,z,f) {
-        this.delete_legal(this.legal(this.policy),this.policy);
+        // this.delete_legal(this.legal(this.policy),this.policy);
         let ll = this.legal(this.policy);
         let flag = false;
         for(let i = 0; i < ll.length;++i)if(ll[i][0]==x&&ll[i][1]==z)flag=true;
     
         let o = this.policy;
         // 打てなかったらリターン
-        if(o<=10&&y!=0||o>10&&y!=1||!flag){
+        if((o<=10&&y!=0||o>10&&y!=1)||!flag){
             this.policy=0;
             alert("そこうてねぇよばか")
             return;
@@ -436,11 +469,10 @@ class Board {
         }
         //うつ
         this.komas[x][y][z] = o;
-        //資材を集める
-        //this.correct_cards(9);
 
         if(!f)put_emit(x,y,z,this.policy);
 
+        cancel_select(true);
         this.policy=0;
         //街道とか選択していない状態にする
 
@@ -458,7 +490,7 @@ class Board {
         this.player = Math.floor((this.player+1)%this.player_count);
         this.policy=0;
         this.turn_paint();
-        if(this.player==this.my_turn)myturn();
+        if(this.player==this.my_turn) myturn();
     }
     // aがプレート上の番号の条件に合致するか
     f(a) {
@@ -575,17 +607,17 @@ class Board {
     }
 }
 
-function myturn() {
+async function myturn() {
     //サイコロを打つ
     let x = Math.floor(Math.random() * (6 - 1 + 1)) + 1;
     let y = Math.floor(Math.random() * (6 - 1 + 1)) + 1;
     //相手にも送る
     socket.emit("dice",{x:x,y:y});
-    rollDice(x,y);    
-    
+    await rollDice(x,y);    
+    await show_alert("Your Turn");
 }
 
-function start(player_count,my_turn,plate_number,plate_types) {
+async function start(player_count,my_turn,plate_number,plate_types) {
     board = new Board(player_count,my_turn);
     board.init();
     board.plate_numbers=plate_number;
@@ -594,6 +626,10 @@ function start(player_count,my_turn,plate_number,plate_types) {
     board.first = true;
     board.policy=1;
     // ゲームの進行はクラス内でやりません。
+    if(board.player==board.my_turn){
+        await show_alert("Your Turn");
+        ok_first(11);
+    }
 }
 
 
@@ -618,11 +654,14 @@ function rollDice(x,y) {
     dice2.dataset.side = result2;
     dice2.classList.toggle("reRoll");
 
-    setTimeout(function(){ 
-        //ここで結果を表示 
-        board.correct_cards(x+y);
-        document.getElementById("dices").style.display = "none";
-    }, 2000);
+    return new Promise(resolve => {
+        setTimeout(function(){ 
+            //ここで結果を表示 
+            board.correct_cards(x+y);
+            document.getElementById("dices").style.display = "none";
+            resolve();
+        }, 2000);
+    });
 }
 
 
@@ -634,37 +673,132 @@ function ok(p) {
     //開拓地  0 1 3 4
     //都市    4*2 1*3
     if(p==1) {
-        if(board.cards[board.player][0]>=1&&board.cards[board.player][1]>=1)board.policy=(board.player+1)*1,board.print_legal(board.legal(1),0);
+        if(board.cards[board.player][0]>=1&&board.cards[board.player][1]>=1)board.policy=(board.player+1)*1,board.print_legal(board.legal(1),0),select(1);
     }
     else if(p==11) {
-        if(board.cards[board.player][0]>=1&&board.cards[board.player][1]>=1&&board.cards[board.player][2]>=1&&board.cards[board.player][3]>=1)board.policy=(board.player+1)*11,board.print_legal(board.legal(11),1);
+        if(board.cards[board.player][0]>=1&&board.cards[board.player][1]>=1&&board.cards[board.player][2]>=1&&board.cards[board.player][3]>=1)board.policy=(board.player+1)*11,board.print_legal(board.legal(11),1),select(11);
     }
     else {
-        if(board.cards[board.player][3]>=2&&board.cards[board.player][4]>=3)board.policy=(board.player+1)*111,board.print_legal(board.legal(111),1);
+        if(board.cards[board.player][3]>=2&&board.cards[board.player][4]>=3)board.policy=(board.player+1)*111,board.print_legal(board.legal(111),1),select(111);
     }
     document.getElementById("select").style.display="none";
 }
+function ok_first(p) {
+    //街道建設 0 2
+    //開拓地  0 1 3 4
+    //都市    4*2 1*3
+    if(p==1) {
+        board.policy=(board.player+1)*1,board.print_legal(board.legal(1),0),select(1);
+    }
+    else if(p==11) {
+        board.policy=(board.player+1)*11,board.print_legal(board.legal(11),1),select(11);
+    }
+    else {
+        board.policy=(board.player+1)*111,board.print_legal(board.legal(111),1),select(111);
+    }
+    document.getElementById("select").style.display="none";
+}
+function select(p) {
+    document.getElementById("now_select_a").style.display="block";
+    if(p==1)document.getElementById("now_select").innerHTML="街道"
+    if(p==11)document.getElementById("now_select").innerHTML="開拓地"
+    if(p==111)document.getElementById("now_select").innerHTML="都市"
+    action();
+}
+function cancel_select(f) {
+    if(board.first&&!f)return;
+    document.getElementById("now_select_a").style.display="none";
+    if(board.policy==(board.player+1)*1)board.delete_legal(board.legal(1),1);
+    if(board.policy==(board.player+1)*11)board.delete_legal(board.legal(11),11);
+    if(board.policy==(board.player+1)*111)board.delete_legal(board.legal(111),111);
+    board.policy=0;
+}
+// 選択中にパスボタンとか押せないようにする
+function action() {
+    ///
+    //
+    //
+    //
+    //
+    //
+    //
+}
 //手番を渡す
 function pass() {
-    if(board.player==board.my_turn)board.next_player(),socket.emit("next_player");
+    if(board.player==board.my_turn&&!board.first){
+        board.next_player(),socket.emit("next_player");
+        cancel_select(true);
+        change_cancel();
+    }
 }
 
+//f見た目
+function select_card_init() {
+    if(board.player==board.my_turn)document.getElementById('select').style.display='block';
+    for(let i = 0; i < 3; ++i) document.getElementById(`content_${i}`).style.opacity="1.0",document.getElementById(`content_${i}`).style.pointerEvents="auto";
+    let m = [[-1,-1,0,0,0],[-1,-1,-1,-1,0],[0,0,0,-2,-3]];
+    for(let i = 0; i < 3; ++i) {
+        let flg = false;
+        for(let j = 0; j < 5; ++j) {
+            document.getElementById(`select_${i}_${j}`).innerHTML=board.cards[board.player][j]+m[i][j]
+            if(board.cards[board.player][j]+m[i][j]<0) flg = true;
+        }
+        if(flg) {
+            document.getElementById(`content_${i}`).style.opacity="0.5";
+            document.getElementById(`content_${i}`).style.pointerEvents="none";
+        }
+    }
+}
 
 // ４枚を１枚に変更
 let select_change = -1;
 
 function sc(p) {
     if(select_change==-1){
-        document.getElementById(`select${p}`).style.display="none";
-        select_change=p;
+        document.getElementById("change_message").innerHTML="何と交換するか選択";
+        select_change=p;                
+        document.getElementById(`select${p}`).style.opacity="0.3";
+        document.getElementById(`select${p}`).style.pointerEvents="none";
+        for(let i = 0; i < 5; ++i) {
+            if(i!=select_change){
+                document.getElementById(`select${i}`).style.opacity="1.0";document.getElementById(`select${i}`).style.pointerEvents="auto";
+            }
+        }
     } else {
         if(board.cards[board.player][select_change]>=4){
+            socket.emit("change_select",{a:select_change,b:p,c:board.my_turn});
             board.cards[board.player][select_change]-=4;
             board.cards[board.player][p]++;  
             board.print_card_counts();       
         }
-        select_change=-1;
-        document.getElementById('change').style.display=(document.getElementById('change').style.display=='none'?'flex':'none');
-        for(let i = 0; i < 5; ++i)document.getElementById(`select${i}`).style.display="block";
+        change_cancel();
     }
+}
+function change_cancel() {
+    select_change=-1;
+    for(let i = 0; i < 5; ++i)document.getElementById(`select${i}`).style.display="block",document.getElementById(`select${i}`).style.pointerEvents="auto",document.getElementById(`select${i}`).style.opacity="1.0";
+    document.getElementById('change').style.display='none';
+}
+function change_select_init() {
+    if(board.player==board.my_turn)document.getElementById('change').style.display='block';document.getElementById('change_message').innerHTML='何を交換するか選択';
+    for(let i = 0; i < 5; ++i) {if(board.cards[board.player][i]<4){document.getElementById(`select${i}`).style.opacity="0.3";document.getElementById(`select${i}`).style.pointerEvents="none";}}
+}
+function show_alert(message) {
+    document.getElementById("alert_box").style.display="inline-block";
+    document.getElementById("alert_box").style.animation="alert_a 0.3s linear 1";
+    document.getElementById("message").innerHTML=message;
+    document.getElementById("game").style.opacity="0.5";
+    document.getElementById("game").style.pointerEvents="none";
+    return new Promise(resolve => {
+        setTimeout(() => {
+            document.getElementById("alert_box").style.animation="alert_b 0.3s linear 1";
+            setTimeout(() => {
+                document.getElementById("alert_box").style.display="none";
+                resolve();
+                document.getElementById("game").style.opacity="1.0";
+                document.getElementById("game").style.pointerEvents="auto";
+            }, 300);
+        }, 1000);
+    })
+
 }

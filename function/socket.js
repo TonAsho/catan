@@ -2,7 +2,8 @@ const { Server } = require('socket.io');
 
 let user_count = 0;
 let waiting = [];
-let games = new Map();
+let games = new Set();
+let games_m = new Map();
 
 const chat = (server) => {
   const io = new Server(server);
@@ -41,40 +42,65 @@ const chat = (server) => {
             } while(!f(plate_numbers_new));
             
             for(let i=0;i<waiting.length;++i)io.to(waiting[i]).emit("start_game",{my_turn:i,player_count:waiting.length,plate_numbers:plate_numbers,plate_types:plate_types});
-            for(let i=0;i<waiting.length;++i)games.set(waiting[i],waiting);
+            games.add(waiting,waiting);
+            for(let i = 0; i < waiting.length; ++i){
+                games_m.set(waiting[i],waiting);
+            }
             waiting=[];
+        }
+    });
+    socket.on("cancel_game_make",()=>{
+        for(let i = 0; i < waiting.length; ++i) if(waiting[i]==socket.id){
+            waiting.splice(i,1);
         }
     });
 
     //打った
     socket.on("put_first",(info)=>{
-        let group = games.get(socket.id);
+        let group = games_m.get(socket.id);
         for(let i=0;i<group.length;++i)if(group[i]!=socket.id){
             io.to(group[i]).emit("get_put_first",info);
         }
     });
     socket.on("put",(info)=>{
-        let group = games.get(socket.id);
+        let group = games_m.get(socket.id);
         for(let i=0;i<group.length;++i)if(group[i]!=socket.id){
             io.to(group[i]).emit("get_put",info);
         }
-    })
+    });
     //パスした
     socket.on("next_player",()=>{
-        let group = games.get(socket.id);
+        let group = games_m.get(socket.id);
         for(let i=0;i<group.length;++i)if(group[i]!=socket.id){
             io.to(group[i]).emit("next_player");
         }
-    })
+    });
     //サイコロふられた
     socket.on("dice",(info)=> {
-        let group = games.get(socket.id);
+        let group = games_m.get(socket.id);
         for(let i=0;i<group.length;++i)if(group[i]!=socket.id){
             io.to(group[i]).emit("get_dice",info);
         }
-    })
-
-    socket.on("disconnect", (socket)=> {
+    });
+    //カードを辺超した
+    socket.on("change_select",(info)=>{
+        let group = games_m.get(socket.id);
+        for(let i=0;i<group.length;++i)if(group[i]!=socket.id){
+            io.to(group[i]).emit("get_change_select",info);
+        }
+    });
+    socket.on("disconnect", (e)=> {
+        for(let i = 0; i < waiting.length; ++i) if(waiting[i]==socket.id){
+            waiting.splice(i,1);
+        }
+        games.forEach(game => {
+            let flg=false;
+            for(let i=0;i<game.length;++i)if(game[i]==socket.id)flg=true;
+            if(flg){
+                for(let i=0;i<game.length;++i)if(game[i]!=socket.id)io.to(game[i]).emit("connection_win",{});
+            }
+            //そのゲームを消去
+        });
         user_count--;io.emit("user_count",{user_count:user_count});
     })
   });

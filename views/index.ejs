@@ -7,6 +7,8 @@
     <title>カタンオンライン対戦</title>
     <!-- <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script> -->
     <link rel="stylesheet" href="/stylesheets/style.css">
+    <link href='https://fonts.googleapis.com/css?family=Abel' rel='stylesheet'>
+
 </head>
 <body>
     <div class="game" id="game" style="display: none;">
@@ -15,7 +17,7 @@
             <div class="p" id="player2" style="display: none;"><div class="a"><div class="aa"><div class="a_cnt" id="p2_a_cnt_0">0</div><div class="a_img a_img_0"></div></div><div class="aa"><div class="a_cnt" id="p2_a_cnt_1">0</div><div class="a_img a_img_1"></div></div><div class="aa"><div class="a_cnt" id="p2_a_cnt_2">0</div><div class="a_img a_img_2"></div></div><div class="aa"><div class="a_cnt" id="p2_a_cnt_3">0</div><div class="a_img a_img_3"></div></div><div class="aa"><div class="a_cnt" id="p2_a_cnt_4">0</div><div class="a_img a_img_4"></div></div></div></div>
             <div class="p" id="player3" style="display: none;"><div class="a"><div class="aa"><div class="a_cnt" id="p3_a_cnt_0">0</div><div class="a_img a_img_0"></div></div><div class="aa"><div class="a_cnt" id="p3_a_cnt_1">0</div><div class="a_img a_img_1"></div></div><div class="aa"><div class="a_cnt" id="p3_a_cnt_2">0</div><div class="a_img a_img_2"></div></div><div class="aa"><div class="a_cnt" id="p3_a_cnt_3">0</div><div class="a_img a_img_3"></div></div><div class="aa"><div class="a_cnt" id="p3_a_cnt_4">0</div><div class="a_img a_img_4"></div></div></div></div>
         </div>
-        <div class="me" id="player0" style="display: block;" onclick="if(board.player==board.my_turn)document.getElementById('select').style.display=(document.getElementById('select').style.display=='none'?'flex':'none')">
+        <div class="me" id="player0" style="display: block;" onclick="select_card_init();">
             <div class="a">
                 <div class="aa"><div class="a_cnt" id="p0_a_cnt_0">0</div><div class="a_img a_img_0"></div></div>
                 <div class="aa"><div class="a_cnt" id="p0_a_cnt_1">0</div><div class="a_img a_img_1"></div></div>
@@ -24,7 +26,6 @@
                 <div class="aa"><div class="a_cnt" id="p0_a_cnt_4">0</div><div class="a_img a_img_4"></div></div>
             </div>
         </div>
-        <button class="change_button" onclick="document.getElementById('change').style.display=(document.getElementById('change').style.display=='none'?'flex':'none');">変える</button>
         <div class="container">
             <div class="hex-row" style="position: relative;">
                 <div class="hex most_left" id="0">
@@ -98,10 +99,11 @@
                     <div class="house h_bottom_right"></div>
                 </div>
                 <div class="hex" id="6">
-                    <div class="top" id="06"></div><div class="middle" id="06a"></div><div class="bottom" id="06b"></div>                <div class="street s_right"></div>
+                    <div class="top" id="06"></div><div class="middle" id="06a"></div><div class="bottom" id="06b"></div>
                     <div class="street s_top_right"></div>
                     <div class="street s_bottom_right"></div>
                     <div class="street s_bottom_left"></div>
+                    <div class="street s_right"></div>
                     <div class="house h_bottom"></div>
                     <div class="house h_bottom_right"></div>
                     <div class="house h_top_right"></div>
@@ -109,11 +111,12 @@
             </div>
             <div class="hex-row" style="position: absolute; top: 36%;">
                 <div class="hex most_left" id="7">
-                    <div class="top" id="07"></div><div class="middle" id="07a"></div><div class="bottom" id="07b"></div>                <div class="street s_right"></div>
+                    <div class="top" id="07"></div><div class="middle" id="07a"></div><div class="bottom" id="07b"></div>
                     <div class="street s_left"></div>
                     <div class="street s_bottom_right"></div>
                     <div class="street s_bottom_left"></div>
                     <div class="street s_top_left"></div>
+                    <div class="street s_right"></div>
                     <div class="house h_bottom"></div>
                     <div class="house h_bottom_right"></div>
                     <div class="house h_bottom_left"></div>
@@ -122,31 +125,30 @@
                 <div class="hex" id="8">
                     <div class="top" id="08"></div><div class="middle" id="08a"></div><div class="bottom" id="08b"></div>
                     <div class="street s_right"></div>
-                    <div class="street s_left"></div>
                     <div class="street s_bottom_right"></div>
                     <div class="street s_bottom_left"></div>
                     <div class="house h_bottom"></div>
                     <div class="house h_bottom_right"></div>
                 </div>
                 <div class="hex" id="9">
-                    <div class="top" id="09"></div><div class="middle" id="09a"></div><div class="bottom" id="09b"></div>                <div class="street s_right"></div>
-                    <div class="street s_left"></div>
+                    <div class="top" id="09"></div><div class="middle" id="09a"></div><div class="bottom" id="09b"></div>
+                    <div class="street s_right"></div>
                     <div class="street s_bottom_right"></div>
                     <div class="street s_bottom_left"></div>
                     <div class="house h_bottom"></div>
                     <div class="house h_bottom_right"></div>
                 </div>
                 <div class="hex" id="10">
-                    <div class="top" id="010"></div><div class="middle" id="010a"></div><div class="bottom" id="010b"></div>                <div class="street s_right"></div>
-                    <div class="street s_left"></div>
+                    <div class="top" id="010"></div><div class="middle" id="010a"></div><div class="bottom" id="010b"></div>
+                    <div class="street s_right"></div>
                     <div class="street s_bottom_right"></div>
                     <div class="street s_bottom_left"></div>
                     <div class="house h_bottom"></div>
                     <div class="house h_bottom_right"></div>
                 </div>
                 <div class="hex" id="11">
-                    <div class="top" id="011"></div><div class="middle" id="011a"></div><div class="bottom" id="011b"></div>                <div class="street s_right"></div>
-                    <div class="street s_left"></div>
+                    <div class="top" id="011"></div><div class="middle" id="011a"></div><div class="bottom" id="011b"></div>
+                    <div class="street s_right"></div>
                     <div class="street s_bottom_right"></div>
                     <div class="street s_bottom_left"></div>
                     <div class="street s_top_right"></div>
@@ -157,8 +159,9 @@
             </div>
             <div class="hex-row" style="position: absolute; top: 54%;">
                 <div class="hex most_left" id="12">
-                    <div class="top" id="012"></div><div class="middle" id="012a"></div><div class="bottom" id="012b"></div>                <div class="street s_right"></div>
+                    <div class="top" id="012"></div><div class="middle" id="012a"></div><div class="bottom" id="012b"></div>
                     <div class="street s_left"></div>
+                    <div class="street s_right"></div>
                     <div class="street s_bottom_right"></div>
                     <div class="street s_bottom_left"></div>
                     <div class="house h_bottom"></div>
@@ -166,32 +169,35 @@
                     <div class="house h_bottom_left"></div>
                 </div>
                 <div class="hex" id="13">
-                    <div class="top" id="013"></div><div class="middle" id="013a"></div><div class="bottom" id="013b"></div>                <div class="street s_right"></div>
-                    <div class="street s_left"></div>
+                    <div class="top" id="013"></div><div class="middle" id="013a"></div><div class="bottom" id="013b"></div>
+                    <div class="street s_right"></div>
                     <div class="street s_bottom_right"></div>
+                    <div class="street s_bottom_left"></div>
                     <div class="house h_bottom"></div>
                     <div class="house h_bottom_right"></div>
                 </div>
                 <div class="hex" id="14">
                     <div class="top" id="014"></div><div class="middle" id="014a"></div><div class="bottom" id="014b"></div>
                     <div class="street s_right"></div>
-                    <div class="street s_left"></div>
                     <div class="street s_bottom_right"></div>
+                    <div class="street s_bottom_left"></div>
                     <div class="house h_bottom"></div>
                     <div class="house h_bottom_right"></div>
                 </div>
                 <div class="hex" id="15">
-                    <div class="top" id="015"></div><div class="middle" id="015a"></div><div class="bottom" id="015b"></div>                <div class="street s_right"></div>
-                    <div class="street s_left"></div>
+                    <div class="top" id="015"></div><div class="middle" id="015a"></div><div class="bottom" id="015b"></div>
+                    <div class="street s_right"></div>
                     <div class="street s_bottom_right"></div>
+                    <div class="street s_bottom_left"></div>
                     <div class="house h_bottom"></div>
                     <div class="house h_bottom_right"></div>
                 </div>
             </div>
             <div class="hex-row" style="position: absolute; top: 72%;">
                 <div class="hex most_left" id="16">
-                    <div class="top" id="016"></div><div class="middle" id="016a"></div><div class="bottom" id="016b"></div>                <div class="street s_right"></div>
+                    <div class="top" id="016"></div><div class="middle" id="016a"></div><div class="bottom" id="016b"></div>
                     <div class="street s_left"></div>
+                    <div class="street s_right"></div>
                     <div class="street s_bottom_right"></div>
                     <div class="street s_bottom_left"></div>
                     <div class="house h_bottom"></div>
@@ -199,15 +205,19 @@
                     <div class="house h_bottom_right"></div>
                 </div>
                 <div class="hex" id="17">
-                    <div class="top" id="017"></div><div class="middle" id="017a"></div><div class="bottom" id="017b"></div>                <div class="street s_left"></div>
+                    <div class="top" id="017"></div><div class="middle" id="017a"></div><div class="bottom" id="017b"></div>
                     <div class="street s_bottom_right"></div>
+                    <div class="street s_bottom_left"></div>
+                    <div class="street s_right"></div>
                     <div class="house h_bottom"></div>
                     <div class="house h_bottom_right"></div>
                 </div>
                 <div class="hex" id="18">
-                    <div class="top" id="018"></div><div class="middle" id="018a"></div><div class="bottom" id="018b"></div>                <div class="street s_left"></div>
+                    <div class="top" id="018"></div><div class="middle" id="018a"></div><div class="bottom" id="018b"></div>
                     <div class="street s_right"></div>
-                    <div class="street s_bottom_right"></div>                <div class="house h_bottom"></div>
+                    <div class="street s_bottom_right"></div>
+                    <div class="street s_bottom_left"></div>
+                    <div class="house h_bottom"></div>
                     <div class="house h_bottom_right"></div>
                 </div>
             </div>
@@ -286,32 +296,66 @@
             </div>
         </div>
         <div class="select" id="select" style="display: none;">
-            <button class="ok" onclick="ok(1)">街道</button>
-            <button class="ok" onclick="ok(11)">開拓地</button>
-            <button class="ok" onclick="ok(111)">都市</button>
-            <button class="cancel" onclick="document.getElementById('select').style.display=(document.getElementById('select').style.display=='none'?'flex':'none')">Cancel</button>
-            <!-- <div id="dropbox" class="result">
-                <div class="card_img_0"></div><div id="card_0_cnt">0</div>
-                <div class="card_img_1"></div><div id="card_1_cnt">0</div>
-                <div class="card_img_2"></div><div id="card_2_cnt">0</div>
-                <div class="card_img_3"></div><div id="card_3_cnt">0</div>
-                <div class="card_img_4"></div><div id="card_4_cnt">0</div>
-                
-            </div> -->
+            <div class="content" id="content_0">
+                <div class="select_">
+                    <div class="a"><div class="aa"><div class="a_cnt" id="select_0_0">0</div><div class="a_img a_img_0"></div></div><div class="aa"><div class="a_cnt" id="select_0_1">0</div><div class="a_img a_img_1"></div></div><div class="aa"><div class="a_cnt" id="select_0_2">0</div><div class="a_img a_img_2"></div></div><div class="aa"><div class="a_cnt" id="select_0_3">0</div><div class="a_img a_img_3"></div></div><div class="aa"><div class="a_cnt" id="select_0_4">0</div><div class="a_img a_img_4"></div></div></div>
+                </div>
+                <button class="button" style="height: 7vmin;background-color: purple;" onclick="ok(1);">街道</button>
+            </div>
+            <div class="content" id="content_1">
+                <div class="select_">
+                    <div class="a"><div class="aa"><div class="a_cnt" id="select_1_0">0</div><div class="a_img a_img_0"></div></div><div class="aa"><div class="a_cnt" id="select_1_1">0</div><div class="a_img a_img_1"></div></div><div class="aa"><div class="a_cnt" id="select_1_2">0</div><div class="a_img a_img_2"></div></div><div class="aa"><div class="a_cnt" id="select_1_3">0</div><div class="a_img a_img_3"></div></div><div class="aa"><div class="a_cnt" id="select_1_4">0</div><div class="a_img a_img_4"></div></div></div>
+                </div>
+                <button class="button" style="height: 7vmin;background-color: purple;" onclick="ok(11);">開拓地</button>
+            </div>
+            <div class="content" id="content_2">
+                <div class="select_">
+                    <div class="a"><div class="aa"><div class="a_cnt" id="select_2_0">0</div><div class="a_img a_img_0"></div></div><div class="aa"><div class="a_cnt" id="select_2_1">0</div><div class="a_img a_img_1"></div></div><div class="aa"><div class="a_cnt" id="select_2_2">0</div><div class="a_img a_img_2"></div></div><div class="aa"><div class="a_cnt" id="select_2_3">0</div><div class="a_img a_img_3"></div></div><div class="aa"><div class="a_cnt" id="select_2_4">0</div><div class="a_img a_img_4"></div></div></div>
+                </div>
+                <button class="button" style="height: 7vmin;background-color: purple;" onclick="ok(111);">都市</button>
+            </div>
+            <button class="button cancel" onclick="document.getElementById('select').style.display=(document.getElementById('select').style.display=='none'?'block':'none');">Cancel</button>
         </div>
         <div class="select" id="change" style="display: none;">
-            <button onclick="sc(0);" id="select0">木</button>
-            <button onclick="sc(1);" id="select1">レンガ</button>
-            <button onclick="sc(2);" id="select2">羊</button>
-            <button onclick="sc(3);" id="select3">小麦</button>
-            <button onclick="sc(4);" id="select4">石</button>
+            <div calss="change_message" id="change_message"></div>
+            <div class="change_content">
+                <div onclick="sc(0)" class="change_img a_img_0" id="select0"></div>
+                <div onclick="sc(1)" class="change_img a_img_1" id="select1"></div>
+                <div onclick="sc(2)" class="change_img a_img_2" id="select2"></div>
+                <div onclick="sc(3)" class="change_img a_img_3" id="select3"></div>
+                <div onclick="sc(4)" class="change_img a_img_4" id="select4"></div>
+            </div>
+            <button class="button cancel" onclick="change_cancel()">Cancel</button>
         </div>
-        <button class="pass" onclick="pass()">手番を渡す</button>
+        <div class="buttons">
+            <button class="button change_button" onclick="change_select_init();">資源を変換</button>
+            <button class="button pass" onclick="pass()">手番を渡す</button>
+        </div>
+        <div class="now_select" id="now_select_a" style="display: none;">
+            <div class="now_select_logo" id="now_select"></div>
+            <button class="button now_select_button" id="cancel_now_select" onclick="cancel_select()">取り消す</button>
+        </div>
     </div>
     <div class="home" id="home" style="display: block;">
-        <button onclick="this.style.display='none';game_make();">対局開始</button>
+        <div class="home_sun"></div>
+        <div class="home_img"></div>
+        <div class="home_box">
+            <h1 class="logo">CATAN</h1>
+            <h3 class="logo">--made by Ram--</h3>
+            <button class="button" id="start_button" onclick="this.style.display='none';document.getElementById('waiting').style.display='block';game_make();">Start</button>
+            <div id="waiting" style="display: none;">
+                <div class="spinner"></div>
+                <h4 style="color: white;">matching...</h4>
+                <button class="button" onclick="document.getElementById('start_button').style.display='';document.getElementById('waiting').style.display='none';cancel_game_make();">Cancel</button>
+            </div>
+        </div>
+        
     </div>
-
+    <div class="alert_box" id="alert_box" style="display: none;">
+        <div class="ribbon9">
+            <h3 id="message"></h3>
+        </div>
+    </div>
     
     
 </body>
