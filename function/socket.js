@@ -38,11 +38,11 @@ const chat = (server) => {
                     plate_numbers_new.push(plate_numbers_now[rnd_num]);
                     plate_numbers_now.splice(rnd_num, 1);
                 }
-                for(let i = 0; i < 19; ++i)if(plate_numbers[i]==7&&plate_types[i]!=5){
+                for(let i = 0; i < 19; ++i)if(plate_numbers_new[i]==7&&plate_types[i]!=5){
                     for(let j = 0; j < 19; ++j) if(plate_types[j]==5){
-                        plate_numbers[i]=plate_numbers[j];
-                        plate_numbers[j]=7;
-                        i=j=1000;
+                        plate_numbers_new[i]=plate_numbers_new[j];
+                        plate_numbers_new[j]=7;
+                        i=1000,j=1000;
                     }
                 }
                 plate_numbers = plate_numbers_new;
@@ -94,6 +94,12 @@ const chat = (server) => {
         let group = games_m.get(socket.id);
         for(let i=0;i<group.length;++i)if(group[i]!=socket.id){
             io.to(group[i]).emit("get_change_plate",info);
+        }
+    });
+    socket.on("change_cards",(info)=>{
+        let group = games_m.get(socket.id);
+        for(let i=0;i<group.length;++i)if(group[i]!=socket.id){
+            io.to(group[i]).emit("get_change_cards",info);
         }
     });
     socket.on("card7_give",(info)=>{

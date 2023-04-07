@@ -21,7 +21,7 @@ socket.on("start_game",(info)=>{
 });
 // 接続切れ勝ち
 socket.on("connection_win",()=>{
-    alert("勝ち2")
+    alert("相手が接続を切りました")
 })
 //はじめのやつで置く
 function put_first_emit(x,y,z) {
@@ -49,11 +49,13 @@ socket.on("get_change_plate",(info)=>{
     board.plate_numbers=info.plate_numbers;
     board.print();
 });
+socket.on("get_change_cards",(info)=>{
+    board.cards[info.from]=info.new_cards;
+    board.print_card_counts();
+})
 let get_cnt=0;
 socket.on("get_card7_give",(info)=>{
-    for(let i = 0; i < 5; ++i) board.cards[board.player][i]+=info.add[i];
     get_cnt++;
-    board.print_card_counts();
     if(get_cnt==board.player_count-1){
         get_cnt=0;
         //ここで全員のカードが集まった。
@@ -295,11 +297,11 @@ class Board {
                     let s=this.komas,l=get_other_h(j,k);
                     let flg = false;
                     if(!this.first) {
-                        if(s[j][0][k]!=0||s[j][0][(k==0?5:k-1)]!=0)flg=true;
+                        if((s[j][0][k]!=0&&get_player(s[j][0][k]!=0)==this.player)||(s[j][0][(k==0?5:k-1)]!=0&&get_player(s[j][0][(k==0?5:k-1)]!=0)==this.player))flg=true;
                         for(let i=0;i<l.length;++i){
                             if(l[i][0]==undefined)continue;
                             let y=l[i][1],z=(l[i][1]==0?5:l[i][1]-1);
-                            if(s[l[i][0]][0][y]!=0||s[l[i][0]][0][z]!=0)flg=true;
+                            if((s[l[i][0]][0][y]!=0&&get_player(s[l[i][0]][0][y])==this.player)||(s[l[i][0]][0][z]!=0&&get_player(s[l[i][0]][0][z])==this.player))flg=true;
                         }
                     } else flg=true;
                     if(s[j][1][(k==5?0:k+1)]!=0||s[j][1][(k==0?5:k-1)]!=0)flg=false;
@@ -308,8 +310,8 @@ class Board {
                         let y=(l[i][1]==5?0:l[i][1]+1),z=(l[i][1]==0?5:l[i][1]-1);
                         if(s[l[i][0]][1][y]!=0||s[l[i][0]][1][z]!=0)flg=false;
                     }
-                    if(this.komas[j][1][k]==0&&flg)res.push([j,k]);
-                    else if(p>=100&&flg)res.push([j,k]);
+                    if(p>=100&&this.komas[j][1][k]!=0)res.push([j,k]);
+                    else if(this.komas[j][1][k]==0&&flg&&p<100)res.push([j,k]);
                     
                     let around = get_other_h(j,k);
                     if(around[0][0]!=undefined)seen[around[0][0]][around[0][1]] = true;
@@ -328,7 +330,10 @@ class Board {
     delete_legal(res,p) {
         for(let i = 0; i < res.length; ++i) {
             if(p<=10)document.getElementById(`s${res[i][0]}${res[i][1]}`).style.backgroundColor="";
-            else document.getElementById(`h${res[i][0]}${res[i][1]}`).style.backgroundColor=""
+            else {
+                if(p>=100&&this.komas[res[i][0]][1][res[i][1]]!=0)document.getElementById(`h${res[i][0]}${res[i][1]}`).style.backgroundColor=player_color[this.player];
+                else document.getElementById(`h${res[i][0]}${res[i][1]}`).style.backgroundColor=""
+            }
         }
     }
     //終了しているか？
@@ -483,6 +488,7 @@ class Board {
         let ll = this.legal(this.policy);
         let flag = false;
         for(let i = 0; i < ll.length;++i)if(ll[i][0]==x&&ll[i][1]==z)flag=true;
+        cancel_select(true);
     
         let o = this.policy;
         // 打てなかったらリターン
@@ -508,13 +514,13 @@ class Board {
 
         if(!f)put_emit(x,y,z,this.policy);
 
-        cancel_select(true);
-        this.policy=0;
-        //街道とか選択していない状態にする
 
+        //街道とか選択していない状態にする
+        this.policy=0;
         //色彩
         this.print_komas();
         this.print_card_counts();
+
         if(this.finish()) {
             //試合が終わってる。
             alert("試合終了！")
@@ -619,7 +625,8 @@ class Board {
         // 数をかく
         for(let i = 0; i < 19; ++i) {
             let new_ele = document.createElement("div");
-            new_ele.className = "plate_number";
+            if(this.plate_numbers[i]!=7)new_ele.className = "plate_number";
+            else new_ele.className = "plate_number_7";
             new_ele.innerHTML = this.plate_numbers[i];
             new_ele.id = `plate_number${i}`;
             if(document.getElementById(`plate_number${i}`) != undefined) document.getElementById(`plate_number${i}`).remove();
@@ -685,6 +692,7 @@ function rollDice(x,y) {
     document.getElementById("dices").style.display = "block";
     let dice = document.getElementById("dice");
     let dice2 = document.getElementById("dice2");
+    document.getElementById("game").style.pointerEvents="none";
     dice.dataset.side = result;
     dice.classList.toggle("reRoll");
     dice2.dataset.side = result2;
@@ -694,63 +702,64 @@ function rollDice(x,y) {
         setTimeout(function(){ 
             //ここで結果を表示 
             document.getElementById("dices").style.display = "none";
+            document.getElementById("game").style.pointerEvents="auto";
             if(x+y==7) {
                 button_put_cannot("pass_button");
                 button_put_cannot("change_select_button");
                 button_put_cannot("player0");
-                if(board.player==board.my_turn){
-                    show_alert("他のプレイヤーから資源を集めています")
-                }else{
-                    let sum = 0;
-                    for(let i=0;i<5;++i)sum+=board.cards[board.my_turn][i];
-                    if(sum>=8){
-                        show_alert("捨てるカードを選択してください");
-                        document.getElementById("card7").style.display="block";
-                        document.getElementById("card7_message").innerHTML=`残りあと${Math.floor(sum/2)}枚`
-                        for(let i=0;i<5;++i){
-                            document.getElementById(`card7_${i}`).innerHTML="";
-                            for(let j=0;j<board.cards[board.my_turn][i];++j){
-                                let new_ele = document.createElement("div");
-                                new_ele.className=`card7_img a_img_${i}`;
-                                new_ele.id=`card7_${i}_${j}`
-                                new_ele.style.opacity="1.0";
-                                document.getElementById(`card7_${i}`).appendChild(new_ele);
-                                document.getElementById(`card7_${i}_${j}`).addEventListener("click",function(){
-                                    if(document.getElementById(`card7_${i}_${j}`).style.opacity=="1")document.getElementById(`card7_${i}_${j}`).style.opacity="0.3";
-                                    else document.getElementById(`card7_${i}_${j}`).style.opacity="1";
-                                    let now = 0;
-                                    for(let k=0;k<5;++k)for(let l=0;l<board.cards[board.my_turn][k];++l){
-                                        if(document.getElementById(`card7_${k}_${l}`).style.opacity=="0.3") now++;
-                                    }
-                                    
-                                    document.getElementById("card7_message").innerHTML=`残りあと${Math.floor(sum/2)-now}枚`
-                                });
-                            }
+                let sum = 0;
+                for(let i=0;i<5;++i)sum+=board.cards[board.my_turn][i];
+                if(sum>=8){
+                    show_alert("捨てるカードを選択してください");
+                    document.getElementById("card7").style.display="block";
+                    document.getElementById("card7_message").innerHTML=`残りあと${Math.floor(sum/2)}枚`
+                    for(let i=0;i<5;++i){
+                        document.getElementById(`card7_${i}`).innerHTML="";
+                        for(let j=0;j<board.cards[board.my_turn][i];++j){
+                            let new_ele = document.createElement("div");
+                            new_ele.className=`card7_img a_img_${i}`;
+                            new_ele.id=`card7_${i}_${j}`
+                            new_ele.style.opacity="1.0";
+                            document.getElementById(`card7_${i}`).appendChild(new_ele);
+                            document.getElementById(`card7_${i}_${j}`).addEventListener("click",function(){
+                                if(document.getElementById(`card7_${i}_${j}`).style.opacity=="1")document.getElementById(`card7_${i}_${j}`).style.opacity="0.3";
+                                else document.getElementById(`card7_${i}_${j}`).style.opacity="1";
+                                let now = 0;
+                                for(let k=0;k<5;++k)for(let l=0;l<board.cards[board.my_turn][k];++l){
+                                    if(document.getElementById(`card7_${k}_${l}`).style.opacity=="0.3") now++;
+                                }
+                                
+                                document.getElementById("card7_message").innerHTML=`残りあと${Math.floor(sum/2)-now}枚`
+                            });
                         }
-                        document.getElementById("card7_button").addEventListener("click",function(){
-                            let now = 0;
-                            let add = [0,0,0,0,0];
-                            for(let k=0;k<5;++k)for(let l=0;l<board.cards[board.my_turn][k];++l){
-                                if(document.getElementById(`card7_${k}_${l}`).style.opacity=="0.3") now++,add[k]++;
-                            }
-                            for(let i = 0; i < 5; ++i) board.cards[board.my_turn][i]-=add[i],board.cards[board.player][i]+=add[i];
-                            if(Math.floor(sum/2)-now==0){
-                                for(let i=0;i<5;++i)document.getElementById(`card7_${i}`).innerHTML="";
-                                document.getElementById("card7").style.display="none";
-                                socket.emit("card7_give",{to:board.player,add:add});
-                                button_put_can("pass_button");
-                                button_put_can("change_select_button");
-                                button_put_can("player0");
-                            }
-                            board.print_card_counts();
-                        })
-                    }else{
-                        socket.emit("card7_give",{to:board.player,add:[0,0,0,0,0]});
-                        button_put_can("pass_button");
-                        button_put_can("change_select_button");
-                        button_put_can("player0");
                     }
+                    document.getElementById("card7_button").addEventListener("click",function(){
+                        let now = 0;
+                        let add = [0,0,0,0,0];
+                        for(let k=0;k<5;++k)for(let l=0;l<board.cards[board.my_turn][k];++l){
+                            if(document.getElementById(`card7_${k}_${l}`).style.opacity=="0.3") now++,add[k]++;
+                        }
+                        for(let i = 0; i < 5; ++i) board.cards[board.my_turn][i]-=add[i];
+                        if(Math.floor(sum/2)-now==0){
+                            for(let i=0;i<5;++i)document.getElementById(`card7_${i}`).innerHTML="";
+                            document.getElementById("card7").style.display="none";
+                            socket.emit("change_cards",{from:board.my_turn,new_cards:board.cards[board.my_turn]});
+                            if(board.player!=board.my_turn) {
+                                socket.emit("card7_give",{to:board.player});
+                            }
+                            button_put_can("pass_button");
+                            button_put_can("change_select_button");
+                            button_put_can("player0");
+                        }
+                        board.print_card_counts();
+                    })
+                }else{
+                    socket.emit("card7_give",{to:board.player,add:[0,0,0,0,0]});
+                    button_put_can("pass_button");
+                    button_put_can("change_select_button");
+                    button_put_can("player0");
                 }
+                
             } else {
                 board.correct_cards(x+y);
             }
@@ -809,7 +818,7 @@ function cancel_select(f) {
     if(board.policy==(board.player+1)*1)board.delete_legal(board.legal(1),1);
     if(board.policy==(board.player+1)*11)board.delete_legal(board.legal(11),11);
     if(board.policy==(board.player+1)*111)board.delete_legal(board.legal(111),111);
-    board.policy=0;
+    if(!f)board.policy=0;
 }
 // 選択中にパスボタンとか押せないようにする
 function action() {
@@ -824,8 +833,8 @@ function action() {
 //手番を渡す
 function pass() {
     if(board.player==board.my_turn&&!board.first){
+        cancel_select(false);
         board.next_player(),socket.emit("next_player");
-        cancel_select(true);
         change_cancel();
     }
 }
@@ -859,7 +868,7 @@ function sc(p) {
         button_put_cannot(`select${p}`);
         for(let i = 0; i < 5; ++i) {
             if(i!=select_change){
-                button_put_can(`select${p}`);
+                button_put_can(`select${i}`);
             }
         }
     } else {
@@ -874,13 +883,13 @@ function sc(p) {
 }
 function change_cancel() {
     select_change=-1;
-    for(let i = 0; i < 5; ++i)document.getElementById(`select${i}`).style.display="block",document.getElementById(`select${i}`).style.pointerEvents="auto",document.getElementById(`select${i}`).style.opacity="1.0";
+    for(let i = 0; i < 5; ++i)document.getElementById(`select${i}`).style.display="block",button_put_can(`select${i}`);
     document.getElementById('change').style.display='none';
 }
 function change_select_init() {
     if(document.getElementById('select').style.display=='block')return;
     if(board.player==board.my_turn)document.getElementById('change').style.display='block';document.getElementById('change_message').innerHTML='何を交換するか選択';
-    for(let i = 0; i < 5; ++i) {if(board.cards[board.player][i]<4){document.getElementById(`select${i}`).style.opacity="0.3";document.getElementById(`select${i}`).style.pointerEvents="none";}}
+    for(let i = 0; i < 5; ++i) {if(board.cards[board.player][i]<4){button_put_cannot(`select${i}`);}}
 }
 function show_alert(message) {
     document.getElementById("alert_box").style.display="inline-block";
