@@ -547,7 +547,7 @@ transform: rotateX(-90deg) translateZ(3.5vmin);
 }
 
 .home_img {
-  background-image: url("/img/yasi.PNG");
+  background-image: url("/img/yasi.png");
   background-repeat: no-repeat;
   background-position: left;
   background-size: contain;
@@ -786,4 +786,35 @@ h3 {
   width: 100%;
   font-size: 30px;
   margin-bottom: 2%;
+}
+.card7_top {
+  height: 20%;
+  width: 100%;
+  text-align: center;
+  position: relative;
+}
+.card7_bottom {
+  height: 80%;
+  width: 100%;
+}
+.cards7 {
+  height: 20%;
+  width: 100%;
+  display: flex;
+}
+.card7_button{
+  height: 60%;
+  position: absolute;
+  right: 5px;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+}
+.card7_img{
+  height: 80%;
+  margin-left: 1px;
+  width: 5%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
 }

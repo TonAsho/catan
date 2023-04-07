@@ -327,13 +327,26 @@
             </div>
             <button class="button cancel" onclick="change_cancel()">Cancel</button>
         </div>
+        <div class="select" id="card7" style="display: none;">
+            <div class="card7_top">
+                <div class="card7_message" id="card7_message"></div>
+                <div class="button card7_button" id="card7_button">完了</div>
+            </div>
+            <div class="card7_bottom">
+                <div class="cards7" id="card7_0"></div>
+                <div class="cards7" id="card7_1"></div>
+                <div class="cards7" id="card7_2"></div>
+                <div class="cards7" id="card7_3"></div>
+                <div class="cards7" id="card7_4"></div>
+            </div>
+        </div>
         <div class="buttons">
-            <button class="button change_button" onclick="change_select_init();">資源を変換</button>
-            <button class="button pass" onclick="pass()">手番を渡す</button>
+            <button class="button change_button" onclick="change_select_init();" id="change_select_button">資源を変換</button>
+            <button class="button pass" onclick="pass()" id="pass_button">手番を渡す</button>
         </div>
         <div class="now_select" id="now_select_a" style="display: none;">
             <div class="now_select_logo" id="now_select"></div>
-            <button class="button now_select_button" id="cancel_now_select" onclick="cancel_select()">取り消す</button>
+            <button class="button now_select_button" id="cancel_now_select" onclick="cancel_select(false)">取り消す</button>
         </div>
     </div>
     <div class="home" id="home" style="display: block;">

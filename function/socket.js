@@ -38,6 +38,13 @@ const chat = (server) => {
                     plate_numbers_new.push(plate_numbers_now[rnd_num]);
                     plate_numbers_now.splice(rnd_num, 1);
                 }
+                for(let i = 0; i < 19; ++i)if(plate_numbers[i]==7&&plate_types[i]!=5){
+                    for(let j = 0; j < 19; ++j) if(plate_types[j]==5){
+                        plate_numbers[i]=plate_numbers[j];
+                        plate_numbers[j]=7;
+                        i=j=1000;
+                    }
+                }
                 plate_numbers = plate_numbers_new;
             } while(!f(plate_numbers_new));
             
@@ -81,6 +88,17 @@ const chat = (server) => {
         for(let i=0;i<group.length;++i)if(group[i]!=socket.id){
             io.to(group[i]).emit("get_dice",info);
         }
+    });
+    //7のときにかえた
+    socket.on("change_plate",(info)=>{
+        let group = games_m.get(socket.id);
+        for(let i=0;i<group.length;++i)if(group[i]!=socket.id){
+            io.to(group[i]).emit("get_change_plate",info);
+        }
+    });
+    socket.on("card7_give",(info)=>{
+        let group = games_m.get(socket.id);
+        io.to(group[info.to]).emit("get_card7_give",info);
     });
     //カードを辺超した
     socket.on("change_select",(info)=>{
